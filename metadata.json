@@ -1,0 +1,9 @@
+{
+  "name": "Lumen V2.3",
+  "description": "A digital visual cortex for the visually impaired, featuring four intuitive modes: Guardian, Describe, Read, and Navigate.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
