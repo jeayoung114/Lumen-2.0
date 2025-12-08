@@ -12,21 +12,32 @@ export const Camera: React.FC<CameraProps> = ({ onFrame, videoRef, isActive }) =
   useEffect(() => {
     const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        // Try optimal constraints first (back camera, HD)
+        const constraints = {
           video: {
             facingMode: 'environment', // Use back camera if available
             width: { ideal: 1280 },
             height: { ideal: 720 }
           },
-          audio: false // Audio is handled separately
-        });
+          audio: false
+        };
+
+        let stream: MediaStream;
+        
+        try {
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (e) {
+            console.warn("Optimal camera constraints failed, falling back to basic video.", e);
+            // Fallback: Try any video device without strict constraints
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
         
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           streamRef.current = stream;
         }
       } catch (err) {
-        console.error("Camera error:", err);
+        console.error("Camera error (Fatal):", err);
       }
     };
 

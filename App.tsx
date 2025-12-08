@@ -6,7 +6,7 @@ import { GeminiService } from './services/geminiService';
 import { AudioService } from './services/audioService';
 import { AppMode, SpeechRecognition } from './types';
 import { MODE_COLORS, MODE_TEXT_COLORS } from './constants';
-import { Shield, Eye, BookOpen, Navigation, Mic, StopCircle, Camera as CameraIcon, Power } from 'lucide-react';
+import { Shield, Eye, BookOpen, Navigation, Mic, StopCircle, Camera as CameraIcon, Power, Info } from 'lucide-react';
 
 // Initialize services outside component to persist
 const geminiService = new GeminiService();
@@ -21,12 +21,63 @@ declare global {
   }
 }
 
+// --- Intro Overlay Component ---
+const IntroOverlay = ({ onDismiss }: { onDismiss: () => void }) => (
+  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 p-6 backdrop-blur-xl animate-in fade-in duration-500">
+    <div className="max-w-md w-full bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome to Lumen</h1>
+        <p className="text-gray-400 text-sm uppercase tracking-widest">V2.3 Digital Visual Cortex</p>
+      </div>
+      
+      <div className="space-y-5 mb-8">
+        <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
+          <div className="bg-green-500/20 p-3 rounded-lg text-green-500"><Shield size={24} /></div>
+          <div>
+            <h3 className="font-bold text-green-400 text-lg">Guardian</h3>
+            <p className="text-xs text-gray-400 leading-tight">Safety & hazard detection. Runs in background.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
+            <div className="bg-blue-500/20 p-3 rounded-lg text-blue-500"><Eye size={24} /></div>
+            <div>
+            <h3 className="font-bold text-blue-400 text-lg">Describe</h3>
+            <p className="text-xs text-gray-400 leading-tight">General vision. Ask "What do you see?"</p>
+            </div>
+        </div>
+        <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
+            <div className="bg-purple-500/20 p-3 rounded-lg text-purple-500"><BookOpen size={24} /></div>
+            <div>
+            <h3 className="font-bold text-purple-400 text-lg">Read</h3>
+            <p className="text-xs text-gray-400 leading-tight">High-fidelity document reading & OCR.</p>
+            </div>
+        </div>
+        <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
+            <div className="bg-orange-500/20 p-3 rounded-lg text-orange-500"><Navigation size={24} /></div>
+            <div>
+            <h3 className="font-bold text-orange-400 text-lg">Navigate</h3>
+            <p className="text-xs text-gray-400 leading-tight">Maps & AI visual wayfinding.</p>
+            </div>
+        </div>
+      </div>
+
+      <button 
+        onClick={onDismiss}
+        className="w-full bg-white text-black font-bold py-4 rounded-xl text-lg hover:bg-gray-200 transition-colors shadow-lg active:scale-95 transform duration-150"
+      >
+        GET STARTED
+      </button>
+    </div>
+  </div>
+);
+
 export default function App() {
   const [mode, setMode] = useState<AppMode>(AppMode.DESCRIBE);
   const [isGuardianActive, setIsGuardianActive] = useState(false);
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [readResult, setReadResult] = useState<string | null>(null);
   const [isProcessingRead, setIsProcessingRead] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   
   // Track Google Maps Status Globally
   const [googleMapsError, setGoogleMapsError] = useState(false);
@@ -81,7 +132,7 @@ export default function App() {
 
   // --- Helpers ---
   
-  const switchMode = useCallback((newMode: AppMode) => {
+  const switchMode = useCallback((newMode: AppMode, suppressFeedback = false) => {
     setMode(newMode);
     modeRef.current = newMode; // Update ref immediately for any sync logic
     
@@ -93,13 +144,18 @@ export default function App() {
     }
 
     // Provide Audio Feedback
-    const msg = new SpeechSynthesisUtterance(`${newMode.toLowerCase()} mode`);
-    window.speechSynthesis.speak(msg);
+    if (!suppressFeedback) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(`${newMode.toLowerCase()} mode`);
+        window.speechSynthesis.speak(msg);
+    }
   }, []);
 
   const toggleGuardian = useCallback(() => {
     const newState = !isGuardianActive;
     setIsGuardianActive(newState);
+    
+    window.speechSynthesis.cancel();
     const msg = new SpeechSynthesisUtterance(`Guardian system ${newState ? 'on' : 'off'}`);
     window.speechSynthesis.speak(msg);
   }, [isGuardianActive]);
@@ -108,8 +164,6 @@ export default function App() {
 
   const startSession = async () => {
     try {
-      setIsSessionActive(true);
-      
       // 0. Get Location (Best effort) for Maps Grounding
       let location: {lat: number, lng: number} | undefined;
       try {
@@ -126,7 +180,18 @@ export default function App() {
       }
       
       // 1. Audio Input
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err: any) {
+        if (err.name === 'NotFoundError' || err.message?.includes('Requested device not found')) {
+            throw new Error("Microphone not found");
+        }
+        throw err;
+      }
+
+      setIsSessionActive(true);
+
       await audioService.initializeInput(stream, (pcmData) => {
         // Always stream audio regardless of mode to ensure voice commands (like "Switch mode") works
         geminiService.sendRealtimeAudio(pcmData);
@@ -143,14 +208,34 @@ export default function App() {
         location
       );
 
+      window.speechSynthesis.cancel();
       const msg = new SpeechSynthesisUtterance("Lumen Online.");
       window.speechSynthesis.speak(msg);
 
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to start session:", e);
       setIsSessionActive(false);
-      const msg = new SpeechSynthesisUtterance("Connection failed.");
-      window.speechSynthesis.speak(msg);
+      
+      const errorMessage = e.message || e.toString();
+      
+      if (errorMessage.includes("Microphone not found")) {
+         window.speechSynthesis.cancel();
+         const msg = new SpeechSynthesisUtterance("Microphone not found. Please check your system settings.");
+         window.speechSynthesis.speak(msg);
+      } else if (errorMessage.includes("Requested entity was not found")) {
+         window.speechSynthesis.cancel();
+         const msg = new SpeechSynthesisUtterance("Model not available. Please check your key.");
+         window.speechSynthesis.speak(msg);
+         
+         if (window.aistudio) {
+             console.log("Opening API Key Selection Dialog...");
+             await window.aistudio.openSelectKey();
+         }
+      } else {
+         window.speechSynthesis.cancel();
+         const msg = new SpeechSynthesisUtterance("Connection failed. Please try again.");
+         window.speechSynthesis.speak(msg);
+      }
     }
   };
 
@@ -158,6 +243,8 @@ export default function App() {
     setIsSessionActive(false);
     await geminiService.disconnect();
     await audioService.close();
+    
+    window.speechSynthesis.cancel();
     const msg = new SpeechSynthesisUtterance("Session Ended.");
     window.speechSynthesis.speak(msg);
   };
@@ -173,7 +260,7 @@ export default function App() {
     if (name === 'change_mode') {
       const target = args.targetMode as AppMode;
       if (Object.values(AppMode).includes(target)) {
-        switchMode(target);
+        switchMode(target, true); // Suppress TTS because AI will speak
         return `Switched to ${target} mode.`;
       }
     }
@@ -208,6 +295,7 @@ export default function App() {
     setIsProcessingRead(false);
 
     // Speak Result
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(utterance);
   };
@@ -263,11 +351,6 @@ export default function App() {
                 guardianStateAction = true;
             } else if (transcript.includes("off") || transcript.includes("stop") || transcript.includes("disable") || transcript.includes("deactivate")) {
                 guardianStateAction = false;
-            } else {
-                // Default to turning it on if just "Guardian Mode" is said, 
-                // but let's just switch tab if vague.
-                // However, user usually expects activation.
-                // We'll leave it null unless explicit.
             }
         } 
         // READ
@@ -289,13 +372,14 @@ export default function App() {
         if (shouldStart) {
             recognition.stop();
             
+            if (newMode) {
+                switchMode(newMode, true); // Suppress TTS, let "Lumen Online" speak
+            }
+            
             if (guardianStateAction !== null) {
                 setIsGuardianActive(guardianStateAction);
             }
 
-            if (newMode) {
-                switchMode(newMode);
-            }
             startSession();
         }
     };
@@ -337,11 +421,14 @@ export default function App() {
   return (
     <div className="h-screen w-screen flex flex-col bg-black text-white overflow-hidden relative">
       
+      {/* Intro Overlay */}
+      {showIntro && <IntroOverlay onDismiss={() => setShowIntro(false)} />}
+
       {/* 1. Camera View Layer (Visible in Describe, Navigate, and Guardian) */}
       <div className={`absolute inset-0 transition-opacity duration-300 ${mode === AppMode.READ ? 'opacity-50' : 'opacity-100'}`}>
         <Camera 
             videoRef={videoRef} 
-            isActive={true} 
+            isActive={!showIntro} 
             onFrame={handleVideoFrame}
         />
       </div>
@@ -429,14 +516,23 @@ export default function App() {
         <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold tracking-tight text-white/90">LUMEN <span className="text-xs font-normal opacity-50">v2.3</span></h1>
             
-            {/* Session Toggle */}
-            <button 
-                onClick={isSessionActive ? stopSession : startSession}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all ${isSessionActive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-white text-black hover:bg-gray-200'}`}
-            >
-                {isSessionActive ? <StopCircle size={20} /> : <Mic size={20} />}
-                {isSessionActive ? "END SESSION" : "START"}
-            </button>
+            <div className="flex items-center gap-2">
+                <button
+                    onClick={() => setShowIntro(true)}
+                    className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                    aria-label="Show Instructions"
+                >
+                    <Info size={20} className="text-white" />
+                </button>
+                {/* Session Toggle */}
+                <button 
+                    onClick={isSessionActive ? stopSession : startSession}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all ${isSessionActive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-white text-black hover:bg-gray-200'}`}
+                >
+                    {isSessionActive ? <StopCircle size={20} /> : <Mic size={20} />}
+                    {isSessionActive ? "END SESSION" : "START"}
+                </button>
+            </div>
         </div>
         
         {/* Active Mode Indicator */}

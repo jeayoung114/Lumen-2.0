@@ -2,15 +2,10 @@ import { GoogleGenAI, Modality, Type } from "@google/genai";
 import { SYSTEM_INSTRUCTION, TOOLS_DECLARATION } from "../constants";
 
 export class GeminiService {
-  private client: GoogleGenAI;
   private session: any = null;
   
   constructor() {
-    const apiKey = process.env.API_KEY || '';
-    if (!apiKey) {
-      console.error("API_KEY is missing!");
-    }
-    this.client = new GoogleGenAI({ apiKey });
+    // Client is now instantiated per-request to ensure fresh API_KEY usage
   }
 
   // --- Live API (Describe Mode) ---
@@ -21,6 +16,10 @@ export class GeminiService {
     onInterrupted: () => void,
     location?: { lat: number, lng: number }
   ) {
+    // Create client with latest API Key
+    const apiKey = process.env.API_KEY || '';
+    const client = new GoogleGenAI({ apiKey });
+
     // 1. Define Tool Sets
     const basicTools = [{ functionDeclarations: TOOLS_DECLARATION }];
     const groundingTools = [
@@ -62,7 +61,7 @@ export class GeminiService {
             }
 
             try {
-                this.session = await this.client.live.connect({
+                this.session = await client.live.connect({
                     model: 'gemini-2.5-flash-native-audio-preview-09-2025',
                     config: config,
                     callbacks: {
@@ -178,14 +177,17 @@ export class GeminiService {
   // --- Static API (Read Mode) ---
 
   async readImage(base64Image: string): Promise<string> {
+    const apiKey = process.env.API_KEY || '';
+    const client = new GoogleGenAI({ apiKey });
+
     try {
       const data = base64Image.split(',')[1];
-      const response = await this.client.models.generateContent({
+      const response = await client.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: {
             parts: [
                 { inlineData: { mimeType: 'image/jpeg', data } },
-                { text: "Read the visible text in this image. If it's a book, read the title and summary. If it's a document, read the main content. Be precise." }
+                { text: "Strictly act as an OCR engine. Extract all visible text from this image exactly as it appears. Do not summarize, do not describe the visual scene, and do not provide any conversational commentary. Return ONLY the raw text found." }
             ]
         }
       });
