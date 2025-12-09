@@ -5,10 +5,12 @@ export class AudioService {
   private inputContext: AudioContext | null = null;
   private workletNode: AudioWorkletNode | null = null;
   private streamSource: MediaStreamAudioSourceNode | null = null;
+  private inputStream: MediaStream | null = null; // Track stream to release mic
   private activeSources: Set<AudioBufferSourceNode> = new Set();
   private nextStartTime = 0;
 
   async initializeInput(stream: MediaStream, onData: (data: ArrayBuffer) => void) {
+    this.inputStream = stream; // Store reference
     this.inputContext = new (window.AudioContext || (window as any).webkitAudioContext)({
       sampleRate: 16000,
     });
@@ -29,6 +31,11 @@ export class AudioService {
   }
 
   initializeOutput() {
+    // If context exists and is running/suspended, reuse it.
+    if (this.audioContext && this.audioContext.state !== 'closed') {
+        return;
+    }
+    
     this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
       sampleRate: 24000,
     });
@@ -114,6 +121,13 @@ export class AudioService {
 
   async close() {
     this.stopAll();
+    
+    // Stop all tracks to release the microphone
+    if (this.inputStream) {
+        this.inputStream.getTracks().forEach(track => track.stop());
+        this.inputStream = null;
+    }
+
     if (this.inputContext) {
       await this.inputContext.close();
       this.inputContext = null;

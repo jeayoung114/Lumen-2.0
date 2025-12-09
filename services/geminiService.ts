@@ -198,6 +198,30 @@ export class GeminiService {
     }
   }
 
+  async speakText(text: string): Promise<string> {
+    const apiKey = process.env.API_KEY || '';
+    const client = new GoogleGenAI({ apiKey });
+
+    const response = await client.models.generateContent({
+      model: "gemini-2.5-flash-preview-tts",
+      contents: [{ parts: [{ text }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: 'Kore' },
+          },
+        },
+      },
+    });
+
+    const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!audioData) {
+        throw new Error("No audio data returned from Gemini TTS");
+    }
+    return audioData;
+  }
+
   // Helper
   private arrayBufferToBase64(buffer: ArrayBuffer): string {
     let binary = '';

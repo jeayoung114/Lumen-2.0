@@ -24,74 +24,64 @@ declare global {
 // --- Intro Overlay Component ---
 const IntroOverlay = ({ onDismiss }: { onDismiss: () => void }) => (
   <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 p-6 backdrop-blur-xl animate-in fade-in duration-500 overflow-y-auto">
-    <div className="max-w-2xl w-full bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl my-auto">
+    <div className="max-w-md w-full bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl my-auto">
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome to Lumen</h1>
         <p className="text-gray-400 text-sm uppercase tracking-widest">V2.3 Digital Visual Cortex</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="space-y-4 mb-6">
         <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
           <div className="bg-green-500/20 p-3 rounded-lg text-green-500"><Shield size={24} /></div>
           <div>
             <h3 className="font-bold text-green-400 text-lg">Guardian</h3>
-            <p className="text-xs text-gray-400 leading-tight">Safety & hazard detection.</p>
+            <p className="text-xs text-gray-400 leading-tight">Safety & hazard detection. Runs in background.</p>
           </div>
         </div>
         <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
             <div className="bg-blue-500/20 p-3 rounded-lg text-blue-500"><Eye size={24} /></div>
             <div>
             <h3 className="font-bold text-blue-400 text-lg">Describe</h3>
-            <p className="text-xs text-gray-400 leading-tight">General AI Vision.</p>
+            <p className="text-xs text-gray-400 leading-tight">General vision. Ask "What do you see?"</p>
             </div>
         </div>
         <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
             <div className="bg-purple-500/20 p-3 rounded-lg text-purple-500"><BookOpen size={24} /></div>
             <div>
             <h3 className="font-bold text-purple-400 text-lg">Read</h3>
-            <p className="text-xs text-gray-400 leading-tight">Document reading & OCR.</p>
+            <p className="text-xs text-gray-400 leading-tight">High-fidelity document reading & OCR.</p>
             </div>
         </div>
         <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
             <div className="bg-orange-500/20 p-3 rounded-lg text-orange-500"><Navigation size={24} /></div>
             <div>
             <h3 className="font-bold text-orange-400 text-lg">Navigate</h3>
-            <p className="text-xs text-gray-400 leading-tight">Maps & Wayfinding.</p>
+            <p className="text-xs text-gray-400 leading-tight">Maps & AI visual wayfinding.</p>
             </div>
         </div>
       </div>
 
-      {/* Voice Activation Commands Table */}
-      <div className="mb-6 bg-white/5 rounded-xl border border-white/5 overflow-hidden">
-        <div className="px-4 py-2 bg-white/5 border-b border-white/5">
-             <h3 className="text-white font-bold text-xs uppercase tracking-wider text-center opacity-70">Voice Activation Commands</h3>
+      {/* Voice Wake Words Table */}
+      <div className="mb-6 bg-white/5 rounded-xl border border-white/5 p-4">
+        <h3 className="text-white font-bold mb-3 text-xs uppercase tracking-wider text-center opacity-70">Voice Wake Words</h3>
+        <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-xs">
+            <div className="text-center">
+                <p className="text-white font-bold bg-white/10 rounded px-2 py-1 inline-block mb-1">"Lumen Start"</p>
+                <p className="text-gray-500">Activate Session</p>
+            </div>
+            <div className="text-center">
+                <p className="text-green-400 font-bold bg-green-900/20 rounded px-2 py-1 inline-block mb-1">"Start Guardian"</p>
+                <p className="text-gray-500">Safety Mode</p>
+            </div>
+            <div className="text-center">
+                <p className="text-purple-400 font-bold bg-purple-900/20 rounded px-2 py-1 inline-block mb-1">"Read This"</p>
+                <p className="text-gray-500">Read Mode</p>
+            </div>
+             <div className="text-center">
+                <p className="text-orange-400 font-bold bg-orange-900/20 rounded px-2 py-1 inline-block mb-1">"Navigate"</p>
+                <p className="text-gray-500">Navigation Mode</p>
+            </div>
         </div>
-        <table className="w-full text-left text-xs border-collapse">
-            <thead>
-                <tr className="border-b border-white/10 bg-white/5">
-                    <th className="px-4 py-2 font-bold text-gray-400 uppercase tracking-wider">Wake Phrase</th>
-                    <th className="px-4 py-2 font-bold text-gray-400 uppercase tracking-wider text-right">System Action</th>
-                </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-                <tr>
-                    <td className="px-4 py-3 font-medium text-white">"Lumen Start", "Start Session"</td>
-                    <td className="px-4 py-3 text-gray-400 text-right">Activate Voice Assistant</td>
-                </tr>
-                <tr>
-                    <td className="px-4 py-3 font-medium text-green-400">"Start Guardian", "Guardian On"</td>
-                    <td className="px-4 py-3 text-gray-400 text-right">Enable Safety Overlay</td>
-                </tr>
-                <tr>
-                    <td className="px-4 py-3 font-medium text-purple-400">"Read This", "Read Mode"</td>
-                    <td className="px-4 py-3 text-gray-400 text-right">Open Document Scanner</td>
-                </tr>
-                <tr>
-                    <td className="px-4 py-3 font-medium text-orange-400">"Navigate", "Take me to..."</td>
-                    <td className="px-4 py-3 text-gray-400 text-right">Open Navigation Mode</td>
-                </tr>
-            </tbody>
-        </table>
       </div>
 
       <button 
@@ -335,29 +325,16 @@ export default function App() {
     ctx?.drawImage(videoRef.current, 0, 0);
     const base64 = canvas.toDataURL('image/jpeg', 0.8);
 
-    try {
-        // Send to Gemini Static (OCR)
-        const text = await geminiService.readImage(base64);
-        setReadResult(text);
-        
-        // Speak Result using Gemini TTS
-        const audioBase64 = await geminiService.speakText(text);
-        audioService.initializeOutput();
-        await audioService.playAudioData(audioBase64);
-    } catch (e) {
-        console.error("Read mode processing error:", e);
-        // Fallback: Use browser TTS if Gemini TTS fails
-        const fallbackText = typeof e === 'string' ? e : "Could not process text.";
-        const finalText = readResult || fallbackText;
-        
-        if (finalText) {
-             window.speechSynthesis.cancel();
-             const utterance = new SpeechSynthesisUtterance(finalText);
-             window.speechSynthesis.speak(utterance);
-        }
-    } finally {
-        setIsProcessingRead(false);
-    }
+    // Send to Gemini Static
+    const text = await geminiService.readImage(base64);
+    
+    setReadResult(text);
+    setIsProcessingRead(false);
+
+    // Speak Result
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
   };
 
   // --- Effects ---
