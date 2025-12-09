@@ -1,4 +1,5 @@
 
+
 import { FunctionDeclaration, Type } from "@google/genai";
 import { AppMode } from "./types";
 
@@ -33,7 +34,7 @@ Strictly follow these mappings when the user gives a command:
 1. SAFETY INTENT
    - User says: "Start Guardian", "Enable Guardian", "Guardian on"
    - Action: Call set_guardian_state(true) AND change_mode('GUARDIAN').
-   - User says: "Stop Guardian", "Disable Guardian", "Guardian off"
+   - User says: "Stop Guardian", "Disable Guardian", "Guardian off", "Deactivate Guardian"
    - Action: Call set_guardian_state(false).
 
 2. COGNITION INTENT

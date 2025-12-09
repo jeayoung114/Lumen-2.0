@@ -15,10 +15,11 @@ export const GuardianOverlay: React.FC<GuardianOverlayProps> = ({ videoRef, acti
 
   useEffect(() => {
     if (!active) {
-      if (audioContextRef.current) {
+      // If manually disabled, ensure we clean up if not already handled
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close();
-        audioContextRef.current = null;
       }
+      audioContextRef.current = null;
       setHazardLevel(0);
       return;
     }
@@ -46,8 +47,20 @@ export const GuardianOverlay: React.FC<GuardianOverlayProps> = ({ videoRef, acti
 
     return () => {
       clearInterval(interval);
-      osc.stop();
-      ctx.close();
+      try {
+          if (oscRef.current) oscRef.current.stop();
+      } catch (e) {
+          // Ignore if already stopped
+      }
+      
+      if (ctx.state !== 'closed') {
+          ctx.close();
+      }
+      
+      // Nullify ref if it matches current context
+      if (audioContextRef.current === ctx) {
+          audioContextRef.current = null;
+      }
     };
   }, [active]);
 
@@ -94,6 +107,9 @@ export const GuardianOverlay: React.FC<GuardianOverlayProps> = ({ videoRef, acti
   const updateAudioFeedback = (level: number) => {
     if (!audioContextRef.current || !oscRef.current || !gainRef.current) return;
     
+    // Check if context is valid before using
+    if (audioContextRef.current.state === 'closed') return;
+
     const now = audioContextRef.current.currentTime;
     
     // Increased threshold to 0.12 (was 0.05) - requires 12% of screen to move

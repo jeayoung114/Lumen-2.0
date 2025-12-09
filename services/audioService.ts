@@ -129,11 +129,15 @@ export class AudioService {
     }
 
     if (this.inputContext) {
-      await this.inputContext.close();
+      if (this.inputContext.state !== 'closed') {
+        await this.inputContext.close();
+      }
       this.inputContext = null;
     }
     if (this.audioContext) {
-      await this.audioContext.close();
+      if (this.audioContext.state !== 'closed') {
+        await this.audioContext.close();
+      }
       this.audioContext = null;
     }
   }

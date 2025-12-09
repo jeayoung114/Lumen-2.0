@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Camera } from './components/Camera';
 import { GuardianOverlay } from './components/GuardianOverlay';
@@ -328,9 +330,10 @@ export default function App() {
     }
     
     if (name === 'set_guardian_state') {
-        const active = args.active;
-        setIsGuardianActive(active);
-        return `Guardian system ${active ? 'activated' : 'deactivated'}.`;
+        // Robust boolean conversion to handle strings or booleans
+        const isActive = String(args.active).toLowerCase() === 'true';
+        setIsGuardianActive(isActive);
+        return `Guardian system ${isActive ? 'activated' : 'deactivated'}.`;
     }
 
     return null;
@@ -427,7 +430,7 @@ export default function App() {
 
         // IMMEDIATE INTERRUPT for any command-like utterance
         // This ensures TTS stops if the user is giving a command while it's reading.
-        const allCommands = ["stop", "capture", "navigate", "read", "guardian", "lumen", "activate", "start", "describe", "insight"];
+        const allCommands = ["stop", "capture", "navigate", "read", "guardian", "lumen", "activate", "start", "describe", "insight", "deactivate", "disable", "off"];
         if (allCommands.some(cmd => transcript.includes(cmd))) {
              window.speechSynthesis.cancel();
              isSpeechInterrupted.current = true; // Mark interruption for async processes
@@ -473,16 +476,29 @@ export default function App() {
 
         // 3. Mode Specific Commands (Combined with Start)
         
-        // GUARDIAN
+        // GUARDIAN CHECK
         if (transcript.includes("guardian")) {
+            // Priority: DEACTIVATION
+            // If the user wants to turn OFF guardian, we do NOT want to start a session or switch modes.
+            if (transcript.includes("off") || transcript.includes("stop") || transcript.includes("disable") || transcript.includes("deactivate")) {
+                 console.log("Wake word: Guardian Deactivation");
+                 recognition.stop();
+                 setIsGuardianActive(false);
+                 
+                 // Feedback
+                 window.speechSynthesis.cancel();
+                 const msg = new SpeechSynthesisUtterance("Guardian system deactivated");
+                 window.speechSynthesis.speak(msg);
+                 
+                 return; // EXIT EARLY: Do NOT start session or switch mode
+            }
+
+            // Otherwise, it's Activation or Navigation
             shouldStart = true;
             newMode = AppMode.GUARDIAN;
             
-            // Check for explicit On/Off commands
             if (transcript.includes("on") || transcript.includes("start") || transcript.includes("enable") || transcript.includes("activate")) {
                 guardianStateAction = true;
-            } else if (transcript.includes("off") || transcript.includes("stop") || transcript.includes("disable") || transcript.includes("deactivate")) {
-                guardianStateAction = false;
             }
         } 
         // READ
