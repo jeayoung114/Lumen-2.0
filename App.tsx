@@ -6,7 +6,7 @@ import { GeminiService } from './services/geminiService';
 import { AudioService } from './services/audioService';
 import { AppMode, SpeechRecognition } from './types';
 import { MODE_COLORS, MODE_TEXT_COLORS } from './constants';
-import { Shield, Eye, BookOpen, Navigation, Mic, StopCircle, Camera as CameraIcon, Power, Info } from 'lucide-react';
+import { Shield, Eye, BookOpen, Navigation, Mic, StopCircle, Camera as CameraIcon, Power, Info, X } from 'lucide-react';
 
 // Initialize services outside component to persist
 const geminiService = new GeminiService();
@@ -24,74 +24,72 @@ declare global {
 // --- Intro Overlay Component ---
 const IntroOverlay = ({ onDismiss }: { onDismiss: () => void }) => (
   <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 p-6 backdrop-blur-xl animate-in fade-in duration-500 overflow-y-auto">
-    <div className="max-w-2xl w-full bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl my-auto">
+    <div className="max-w-md w-full bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl my-auto">
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome to Lumen</h1>
         <p className="text-gray-400 text-sm uppercase tracking-widest">V2.3 Digital Visual Cortex</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="space-y-4 mb-6">
         <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
           <div className="bg-green-500/20 p-3 rounded-lg text-green-500"><Shield size={24} /></div>
           <div>
             <h3 className="font-bold text-green-400 text-lg">Guardian</h3>
-            <p className="text-xs text-gray-400 leading-tight">Safety & hazard detection.</p>
+            <p className="text-xs text-gray-400 leading-tight">Safety & hazard detection. Runs in background.</p>
           </div>
         </div>
         <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
             <div className="bg-blue-500/20 p-3 rounded-lg text-blue-500"><Eye size={24} /></div>
             <div>
             <h3 className="font-bold text-blue-400 text-lg">Describe</h3>
-            <p className="text-xs text-gray-400 leading-tight">General AI Vision.</p>
+            <p className="text-xs text-gray-400 leading-tight">General vision. Ask "What do you see?"</p>
             </div>
         </div>
         <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
             <div className="bg-purple-500/20 p-3 rounded-lg text-purple-500"><BookOpen size={24} /></div>
             <div>
             <h3 className="font-bold text-purple-400 text-lg">Read</h3>
-            <p className="text-xs text-gray-400 leading-tight">Document reading & OCR.</p>
+            <p className="text-xs text-gray-400 leading-tight">High-fidelity document reading & OCR.</p>
             </div>
         </div>
         <div className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
             <div className="bg-orange-500/20 p-3 rounded-lg text-orange-500"><Navigation size={24} /></div>
             <div>
             <h3 className="font-bold text-orange-400 text-lg">Navigate</h3>
-            <p className="text-xs text-gray-400 leading-tight">Maps & Wayfinding.</p>
+            <p className="text-xs text-gray-400 leading-tight">Maps & AI visual wayfinding.</p>
             </div>
         </div>
       </div>
 
-      {/* Voice Activation Commands Table */}
-      <div className="mb-6 bg-white/5 rounded-xl border border-white/5 overflow-hidden">
-        <div className="px-4 py-2 bg-white/5 border-b border-white/5">
-             <h3 className="text-white font-bold text-xs uppercase tracking-wider text-center opacity-70">Voice Activation Commands</h3>
+      {/* Voice Wake Words Table */}
+      <div className="mb-6 bg-white/5 rounded-xl border border-white/5 p-4">
+        <h3 className="text-white font-bold mb-3 text-xs uppercase tracking-wider text-center opacity-70">Voice Wake Words</h3>
+        <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-xs">
+            <div className="text-center">
+                <p className="text-white font-bold bg-white/10 rounded px-2 py-1 inline-block mb-1">"Lumen Start"</p>
+                <p className="text-gray-500">Activate Session</p>
+            </div>
+            <div className="text-center">
+                <p className="text-red-400 font-bold bg-red-900/20 rounded px-2 py-1 inline-block mb-1">"Stop"</p>
+                <p className="text-gray-500">Interrupt / Silence</p>
+            </div>
+            <div className="text-center">
+                <p className="text-purple-400 font-bold bg-purple-900/20 rounded px-2 py-1 inline-block mb-1">"Read This"</p>
+                <p className="text-gray-500">Read Mode</p>
+            </div>
+            <div className="text-center">
+                <p className="text-purple-300 font-bold bg-purple-800/20 rounded px-2 py-1 inline-block mb-1">"Capture"</p>
+                <p className="text-gray-500">Scan Text (Read Mode)</p>
+            </div>
+            <div className="text-center">
+                <p className="text-green-400 font-bold bg-green-900/20 rounded px-2 py-1 inline-block mb-1">"Start Guardian"</p>
+                <p className="text-gray-500">Safety Mode</p>
+            </div>
+             <div className="text-center">
+                <p className="text-orange-400 font-bold bg-orange-900/20 rounded px-2 py-1 inline-block mb-1">"Navigate"</p>
+                <p className="text-gray-500">Navigation Mode</p>
+            </div>
         </div>
-        <table className="w-full text-left text-xs border-collapse">
-            <thead>
-                <tr className="border-b border-white/10 bg-white/5">
-                    <th className="px-4 py-2 font-bold text-gray-400 uppercase tracking-wider">Wake Phrase</th>
-                    <th className="px-4 py-2 font-bold text-gray-400 uppercase tracking-wider text-right">System Action</th>
-                </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-                <tr>
-                    <td className="px-4 py-3 font-medium text-white">"Lumen Start", "Start Session"</td>
-                    <td className="px-4 py-3 text-gray-400 text-right">Activate Voice Assistant</td>
-                </tr>
-                <tr>
-                    <td className="px-4 py-3 font-medium text-green-400">"Start Guardian", "Guardian On"</td>
-                    <td className="px-4 py-3 text-gray-400 text-right">Enable Safety Overlay</td>
-                </tr>
-                <tr>
-                    <td className="px-4 py-3 font-medium text-purple-400">"Read This", "Read Mode"</td>
-                    <td className="px-4 py-3 text-gray-400 text-right">Open Document Scanner</td>
-                </tr>
-                <tr>
-                    <td className="px-4 py-3 font-medium text-orange-400">"Navigate", "Take me to..."</td>
-                    <td className="px-4 py-3 text-gray-400 text-right">Open Navigation Mode</td>
-                </tr>
-            </tbody>
-        </table>
       </div>
 
       <button 
@@ -109,8 +107,12 @@ export default function App() {
   const [isGuardianActive, setIsGuardianActive] = useState(false);
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [readResult, setReadResult] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isProcessingRead, setIsProcessingRead] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  
+  // Ref to track if speech was interrupted during async operations
+  const isSpeechInterrupted = useRef(false);
   
   // Track Google Maps Status Globally
   const [googleMapsError, setGoogleMapsError] = useState(false);
@@ -193,6 +195,12 @@ export default function App() {
     const msg = new SpeechSynthesisUtterance(`Guardian system ${newState ? 'on' : 'off'}`);
     window.speechSynthesis.speak(msg);
   }, [isGuardianActive]);
+
+  const handleCloseCapture = useCallback(() => {
+    setCapturedImage(null);
+    setReadResult(null);
+    window.speechSynthesis.cancel();
+  }, []);
 
   // --- Handlers ---
 
@@ -308,6 +316,13 @@ export default function App() {
       
       if (Object.values(AppMode).includes(target)) {
         switchMode(target, true); // Suppress TTS because AI will speak
+        
+        // If switching to READ mode, we stop the live session so "Capture" can take over
+        if (target === AppMode.READ) {
+            stopSession();
+            return "Read mode active. Say capture to scan.";
+        }
+        
         return `Switched to ${target} mode.`;
       }
     }
@@ -324,8 +339,17 @@ export default function App() {
   const handleReadCapture = async () => {
     if (!videoRef.current || isProcessingRead) return;
     
+    // Reset interrupt flag
+    isSpeechInterrupted.current = false;
+
+    // Immediate Feedback
+    window.speechSynthesis.cancel();
+    const feedback = new SpeechSynthesisUtterance("Capturing. Scanning text.");
+    window.speechSynthesis.speak(feedback);
+
     setIsProcessingRead(true);
     setReadResult(null);
+    setCapturedImage(null);
 
     // Capture Frame
     const canvas = document.createElement('canvas');
@@ -334,33 +358,52 @@ export default function App() {
     const ctx = canvas.getContext('2d');
     ctx?.drawImage(videoRef.current, 0, 0);
     const base64 = canvas.toDataURL('image/jpeg', 0.8);
+    
+    // Show the captured image immediately
+    setCapturedImage(base64);
 
     try {
         // Send to Gemini Static (OCR)
         const text = await geminiService.readImage(base64);
+
+        // Check for interruption during OCR wait
+        if (isSpeechInterrupted.current) {
+            console.log("Read interrupted by user command.");
+            setIsProcessingRead(false);
+            handleCloseCapture();
+            return;
+        }
+
         setReadResult(text);
         
-        // Speak Result using Gemini TTS
-        const audioBase64 = await geminiService.speakText(text);
-        audioService.initializeOutput();
-        await audioService.playAudioData(audioBase64);
-    } catch (e) {
-        console.error("Read mode processing error:", e);
-        // Fallback: Use browser TTS if Gemini TTS fails
-        const fallbackText = typeof e === 'string' ? e : "Could not process text.";
-        const finalText = readResult || fallbackText;
+        // Speak Result immediately
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
         
-        if (finalText) {
-             window.speechSynthesis.cancel();
-             const utterance = new SpeechSynthesisUtterance(finalText);
-             window.speechSynthesis.speak(utterance);
-        }
+        // Auto-close when done reading (or when cancelled by Stop command)
+        utterance.onend = () => {
+            handleCloseCapture();
+        };
+
+        window.speechSynthesis.speak(utterance);
+    } catch (e) {
+        console.error("OCR Error", e);
+        const errUtterance = new SpeechSynthesisUtterance("Sorry, I could not read that.");
+        window.speechSynthesis.speak(errUtterance);
     } finally {
         setIsProcessingRead(false);
     }
   };
 
   // --- Effects ---
+
+  // Ref for accessing capture function in useEffect without stale closure
+  const handleReadCaptureRef = useRef(handleReadCapture);
+  const setShowIntroRef = useRef(setShowIntro);
+  useEffect(() => {
+    handleReadCaptureRef.current = handleReadCapture;
+    setShowIntroRef.current = setShowIntro;
+  }, [handleReadCapture, setShowIntro]);
 
   // Wake Word Listener (Offline Speech Recognition)
   useEffect(() => {
@@ -382,11 +425,28 @@ export default function App() {
         const transcript = event.results[last][0].transcript.toLowerCase().trim();
         console.log("Wake word detected:", transcript);
 
+        // IMMEDIATE INTERRUPT for any command-like utterance
+        // This ensures TTS stops if the user is giving a command while it's reading.
+        const allCommands = ["stop", "capture", "navigate", "read", "guardian", "lumen", "activate", "start", "describe", "insight"];
+        if (allCommands.some(cmd => transcript.includes(cmd))) {
+             window.speechSynthesis.cancel();
+             isSpeechInterrupted.current = true; // Mark interruption for async processes
+        }
+
+        // 0. STOP Command (Stand-alone interrupt)
+        if (transcript.includes("stop") || transcript.includes("stop reading") || transcript.includes("shut up")) {
+            // Already cancelled above.
+            // Explicitly return to ensure no other mode logic runs (unless it's "Stop Guardian")
+            if (!transcript.includes("guardian")) {
+                return;
+            }
+        }
+
         const wakeWords = [
             "activate session", 
             "start session", 
             "open session", 
-            "lumen start",
+            "lumen start", 
             "lumen wake up"
         ];
 
@@ -394,12 +454,24 @@ export default function App() {
         let newMode: AppMode | null = null;
         let guardianStateAction: boolean | null = null;
 
-        // 1. Generic Start
+        // 1. Check for "Capture" specifically in Read Mode
+        // This triggers OCR *instead* of starting the Live Voice Session
+        if (transcript.includes("capture")) {
+            if (modeRef.current === AppMode.READ) {
+                console.log("Wake word: Executing Read Capture (No Session)");
+                recognition.stop(); 
+                setShowIntroRef.current(false); 
+                handleReadCaptureRef.current();
+                return; // Exit early
+            }
+        }
+
+        // 2. Generic Start
         if (wakeWords.some(w => transcript.includes(w))) {
             shouldStart = true;
         }
 
-        // 2. Mode Specific Commands (Combined with Start)
+        // 3. Mode Specific Commands (Combined with Start)
         
         // GUARDIAN
         if (transcript.includes("guardian")) {
@@ -432,8 +504,12 @@ export default function App() {
         if (shouldStart) {
             recognition.stop();
             
-            if (newMode) {
-                switchMode(newMode, true); // Suppress TTS, let "Lumen Online" speak
+            // If switching to Read Mode, play normal feedback since we won't start session
+            if (newMode === AppMode.READ) {
+                switchMode(newMode, false);
+            } else if (newMode) {
+                // If switching to other modes, suppress feedback (let Lumen Online speak)
+                switchMode(newMode, true);
             }
             
             if (guardianStateAction !== null) {
@@ -441,9 +517,12 @@ export default function App() {
             }
 
             // Small delay to allow state updates to settle before starting session
-            setTimeout(() => {
-                startSession();
-            }, 100);
+            // ONLY start session if NOT in Read Mode
+            if (newMode !== AppMode.READ) {
+                setTimeout(() => {
+                    startSession();
+                }, 100);
+            }
         }
     };
 
@@ -551,26 +630,51 @@ export default function App() {
                 <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-purple-500 -mb-1 -mr-1"></div>
             </div>
 
-            {readResult && (
-                <div className="bg-black/80 p-6 rounded-xl max-w-sm mx-4 mb-4 pointer-events-auto overflow-y-auto max-h-60 border border-purple-500/30">
-                    <p className="text-lg leading-relaxed">{readResult}</p>
-                </div>
+            {/* Captured Image Popup with Result */}
+            {capturedImage && (
+                 <div className="absolute inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4 animate-in fade-in zoom-in duration-200 pointer-events-auto">
+                     <button 
+                        onClick={handleCloseCapture}
+                        className="absolute top-4 right-4 bg-white/20 p-2 rounded-full hover:bg-white/40 text-white z-50"
+                     >
+                         <X size={24} />
+                     </button>
+                     
+                     <img 
+                        src={capturedImage} 
+                        alt="Captured" 
+                        className="max-w-full max-h-[50vh] object-contain rounded-lg border border-purple-500/50 mb-4 shadow-2xl" 
+                     />
+                     
+                     <div className="w-full max-w-lg bg-gray-900 border border-white/10 rounded-xl p-4 overflow-y-auto max-h-[30vh]">
+                         {isProcessingRead ? (
+                             <div className="flex items-center gap-3 text-purple-400 animate-pulse">
+                                 <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
+                                 <span className="font-mono">Processing OCR...</span>
+                             </div>
+                         ) : (
+                             <p className="text-white text-lg leading-relaxed">{readResult || "No text detected."}</p>
+                         )}
+                     </div>
+                 </div>
             )}
             
-            <button 
-                onClick={handleReadCapture}
-                disabled={isProcessingRead}
-                className="pointer-events-auto bg-purple-600 hover:bg-purple-500 text-white rounded-full p-6 shadow-lg transform active:scale-95 transition-all flex items-center gap-2"
-            >
-                {isProcessingRead ? (
-                   <span className="animate-spin text-2xl">⏳</span>
-                ) : (
-                    <>
-                    <CameraIcon size={32} />
-                    <span className="font-bold text-lg">CAPTURE</span>
-                    </>
-                )}
-            </button>
+            {!capturedImage && (
+                <button 
+                    onClick={handleReadCapture}
+                    disabled={isProcessingRead}
+                    className="pointer-events-auto bg-purple-600 hover:bg-purple-500 text-white rounded-full p-6 shadow-lg transform active:scale-95 transition-all flex items-center gap-2"
+                >
+                    {isProcessingRead ? (
+                    <span className="animate-spin text-2xl">⏳</span>
+                    ) : (
+                        <>
+                        <CameraIcon size={32} />
+                        <span className="font-bold text-lg">CAPTURE</span>
+                        </>
+                    )}
+                </button>
+            )}
         </div>
       )}
 
@@ -590,10 +694,17 @@ export default function App() {
                 {/* Session Toggle */}
                 <button 
                     onClick={isSessionActive ? stopSession : startSession}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all ${isSessionActive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-white text-black hover:bg-gray-200'}`}
+                    disabled={mode === AppMode.READ}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all ${
+                        mode === AppMode.READ 
+                            ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' 
+                            : isSessionActive 
+                                ? 'bg-red-500 hover:bg-red-600 text-white' 
+                                : 'bg-white text-black hover:bg-gray-200'
+                    }`}
                 >
                     {isSessionActive ? <StopCircle size={20} /> : <Mic size={20} />}
-                    {isSessionActive ? "END SESSION" : "START"}
+                    {mode === AppMode.READ ? "OFFLINE" : (isSessionActive ? "END SESSION" : "START")}
                 </button>
             </div>
         </div>
@@ -621,28 +732,28 @@ export default function App() {
         <div className="flex justify-around items-center max-w-md mx-auto">
             <ModeButton 
                 active={mode === AppMode.GUARDIAN} 
-                onClick={() => switchMode(AppMode.GUARDIAN)}
+                onClick={() => { switchMode(AppMode.GUARDIAN); if(!isSessionActive) startSession(); }}
                 icon={<Shield size={24} />}
                 label="Guardian"
                 color="text-green-500"
             />
             <ModeButton 
                 active={mode === AppMode.DESCRIBE} 
-                onClick={() => switchMode(AppMode.DESCRIBE)}
+                onClick={() => { switchMode(AppMode.DESCRIBE); if(!isSessionActive) startSession(); }}
                 icon={<Eye size={24} />}
                 label="Describe"
                 color="text-blue-500"
             />
             <ModeButton 
                 active={mode === AppMode.READ} 
-                onClick={() => switchMode(AppMode.READ)}
+                onClick={() => { switchMode(AppMode.READ); stopSession(); }}
                 icon={<BookOpen size={24} />}
                 label="Read"
                 color="text-purple-500"
             />
              <ModeButton 
                 active={mode === AppMode.NAVIGATE} 
-                onClick={() => switchMode(AppMode.NAVIGATE)}
+                onClick={() => { switchMode(AppMode.NAVIGATE); if(!isSessionActive) startSession(); }}
                 icon={<Navigation size={24} />}
                 label="Navigate"
                 color="text-orange-500"

@@ -44,7 +44,7 @@ Strictly follow these mappings when the user gives a command:
    - User says: "Read this", "Read mode"
    - Action: Call change_mode('READ').
 
-4. TRAVEL INTENT
+4. NAVIGATION INTENT
    - User says: "Take me to...", "How can I get to...", "Navigate", "Navigation start", "Switch to Navigation"
    - Action: Call change_mode('NAVIGATE').
 
