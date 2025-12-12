@@ -17,10 +17,11 @@ The application is organized into four intuitive modes, each serving a specific 
 *   **Behavior:** Runs locally for zero latency. Detects approaching obstacles or sudden movements in the camera feed. Provides dynamic audio feedback (pitch/volume rises with proximity).
 *   **Note:** Can run in the background while other modes are active.
 
-### 🟣 System 3: Read (Analysis)
-*   **Role:** High-fidelity document interpretation.
-*   **Tech:** `gemini-2.5-flash` (Static Request).
-*   **Behavior:** Uses a dedicated viewfinder to capture high-resolution images. Strictly performs OCR (Optical Character Recognition) to read menus, signs, or books without hallucinating scene descriptions.
+### 🟣 System 3: Read (The Analytical Layer)
+*   **Goal:** High-Fidelity Precision. While the Describe mode is fast and conversational, reading complex documents requires pixel-perfect accuracy. Hallucinating the dosage on a medicine bottle is not an option. Read mode (formerly "Analyst") handles these high-stakes tasks.
+*   **Technology:** `gemini-2.5-flash` (Static Request). When activated, this mode switches from the video stream to a high-resolution static capture workflow.
+*   **The Experience:** The user says "Read this." Lumen creates a dedicated viewfinder to capture a high-quality frame. It then performs deep Optical Character Recognition (OCR) and semantic analysis to extract text from menus, books, signage, or contracts.
+*   **Output:** The results are read aloud using high-quality system Text-to-Speech (TTS), ensuring clarity.
 
 ### 🟠 System 4: Navigate (Wayfinding)
 *   **Role:** Point A to Point B guidance.
@@ -115,3 +116,11 @@ API_KEY=your_google_api_key_here
 *   **Fix:** The app includes a fallback strategy. It will automatically retry the connection with "Basic Tools" (Vision only) if the advanced grounding connection fails.
 
 ---
+
+## 🎨 Design System
+
+*   **Background:** `#000000` (OLED Black)
+*   **Guardian:** `Green-500` (#22c55e)
+*   **Describe:** `Blue-500` (#3b82f6)
+*   **Read:** `Purple-500` (#a855f7)
+*   **Navigate:** `Orange-500` (#f97316)
