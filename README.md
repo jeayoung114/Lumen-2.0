@@ -115,11 +115,3 @@ API_KEY=your_google_api_key_here
 *   **Fix:** The app includes a fallback strategy. It will automatically retry the connection with "Basic Tools" (Vision only) if the advanced grounding connection fails.
 
 ---
-
-## 🎨 Design System
-
-*   **Background:** `#000000` (OLED Black)
-*   **Guardian:** `Green-500` (#22c55e)
-*   **Describe:** `Blue-500` (#3b82f6)
-*   **Read:** `Purple-500` (#a855f7)
-*   **Navigate:** `Orange-500` (#f97316)
